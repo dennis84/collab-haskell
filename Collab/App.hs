@@ -12,19 +12,20 @@ import Data.Text (Text)
 import Network.HTTP.Types.URI (decodePathSegments)
 import qualified Network.WebSockets as WS
 import Data.Aeson (decode)
-import Collab.Types
+import Collab.State
 import Collab.Api
 import Collab.Identifier (generateID)
 import Collab.Util (textToString)
-import Collab.JSON
+import Collab.Json
 
 hub :: State -> Member -> Message -> IO ()
 hub state sender msg = case msg of
-  (Message "code"        d) -> code state sender $ fromJust (decodeValue d :: Maybe Code)
-  (Message "cursor"      _) -> cursor state sender
-  (Message "update-nick" _) -> changeNick state sender
-  (Message "members"     _) -> members state sender
-  _                         -> return ()
+    (Message "code"        d) -> maybeDo code (decodeValue d :: Maybe Code)
+    (Message "cursor"      d) -> maybeDo cursor (decodeValue d :: Maybe Cursor)
+    (Message "update-nick" _) -> changeNick state sender
+    (Message "members"     _) -> members state sender
+    _                         -> return ()
+  where maybeDo f d = maybe (return ()) (f state sender) d
 
 app :: State -> WS.ServerApp
 app state pending = do
@@ -36,9 +37,9 @@ app state pending = do
     liftIO $ join state member
     flip finally (leave state member) $ do
       forever $ do
-        msg <- WS.receiveData conn
-        let message = decode msg :: Maybe Message
-        liftIO $ hub state member $ fromJust message
+        json <- WS.receiveData conn
+        let msg = (decode json :: Maybe Message)
+        liftIO $ maybe (return ()) (hub state member) msg
   where
     req = WS.pendingRequest pending
     pathSegments = decodePathSegments (WS.requestPath req)
