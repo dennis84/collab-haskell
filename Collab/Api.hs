@@ -53,9 +53,9 @@ cursor state sender cursor =
   readMVar state >>= sendToAll "cursor" sender
 
 -- When a user changes his nickname.
-changeNick :: State -> Member -> IO ()
-changeNick state sender =
-  readMVar state >>= sendToAll "change-nick" sender
+changeNick :: State -> Member -> Text -> IO ()
+changeNick state sender nick =
+  readMVar state >>= sendToAll nick sender
 
 -- Sends a message to a member.
 pong :: Text -> Member -> IO ()

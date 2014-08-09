@@ -1,37 +1,25 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Collab.Json
-  ( Message(..)
-  , Code(..)
+  ( Code(..)
   , Cursor(..)
-  , decodeValue
   ) where
 
 import Data.Text (Text)
-import GHC.Generics (Generic)
-import Data.Aeson
-
-data Message = Message
-  { t :: Text
-  , d :: Value
-  } deriving (Show, Generic)
+import Data.Aeson.TH (deriveFromJSON)
+import Collab.TH (options)
 
 data Code = Code
-  { content :: Text
-  , file    :: Text
-  } deriving (Show, Generic)
+  { code_content :: Text
+  , code_file    :: Text
+  } deriving Show
+
+$(deriveFromJSON options ''Code)
 
 data Cursor = Cursor
-  { x     :: Int
-  , y     :: Int
-  , file' :: Text
-  } deriving (Show, Generic)
+  { cursor_x    :: Int
+  , cursor_y    :: Int
+  , cursor_file :: Text
+  } deriving Show
 
-instance FromJSON Message
-instance FromJSON Code
-instance FromJSON Cursor
-
-decodeValue :: (FromJSON a) => Value -> Maybe a
-decodeValue v = case (fromJSON v) of
-                  Success a -> Just a
-                  _         -> Nothing
+$(deriveFromJSON options ''Cursor)
