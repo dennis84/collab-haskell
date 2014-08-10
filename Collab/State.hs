@@ -11,10 +11,10 @@ import Data.Text (Text)
 import Network.WebSockets (Connection)
 
 type State   = MVar Members
-type Member  = (String, String, Connection)
+type Member  = (Text, String, Connection)
 type Members = [Member]
 
-getId :: Member -> String
+getId :: Member -> Text
 getId (id, _, _) = id
 
 getRoom :: Member -> String

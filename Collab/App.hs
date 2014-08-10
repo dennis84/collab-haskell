@@ -7,8 +7,7 @@ module Collab.App
 import Control.Exception (finally)
 import Control.Monad (forever, guard)
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (fromJust)
-import Data.Text (Text)
+import Data.Text (Text, pack)
 import qualified Data.Text as T
 import Network.HTTP.Types.URI (decodePathSegments)
 import qualified Network.WebSockets as WS
@@ -35,7 +34,7 @@ app state pending = do
     guard(length pathSegments > 0)
     let room = textToString $ head pathSegments
     id <- generateID
-    let member = (id, room, conn)
+    let member = (pack id, room, conn)
     liftIO $ join state member
     flip finally (leave state member) $ do
       forever $ do
