@@ -1,10 +1,16 @@
+import Control.Applicative ((<$>))
 import Control.Concurrent (newMVar)
-import qualified Network.WebSockets as WS
+import Control.Exception
+import Network.WebSockets (runServer)
+import System.Environment (getEnv)
 import Collab.App (app)
+
+getPort :: Int -> IO Int
+getPort d = (read <$> getEnv "PORT") `catch` \(SomeException _) -> return d
 
 main :: IO ()
 main = do
-  let p = 9000
+  port  <- getPort 9000
   state <- newMVar []
-  putStrLn $ "Listening on port " ++ show p
-  WS.runServer "127.0.0.1" p $ app state
+  putStrLn $ "Listening on port " ++ show port
+  runServer "127.0.0.1" port $ app state

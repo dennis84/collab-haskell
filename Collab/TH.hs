@@ -3,19 +3,12 @@ module Collab.TH
   ) where
 
 import Data.Aeson.TH (Options, defaultOptions, fieldLabelModifier)
-import Data.Char (isUpper, toLower)
+import Collab.Util (slugify)
 
 options :: Options
 options = defaultOptions
-  { fieldLabelModifier = underscore . dropPrefix
+  { fieldLabelModifier = slugify '_' . dropPrefix
   }
-
-underscore :: String -> String
-underscore = concatMap go
- where
-  go c = if isUpper c
-    then ['_', toLower c]
-    else [c]
 
 dropPrefix :: String -> String
 dropPrefix = tail . dropWhile (/= '_')
