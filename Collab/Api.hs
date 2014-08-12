@@ -24,7 +24,7 @@ import Collab.State
 import Collab.Util (slugifyType)
 
 -- | When a user enters the room.
-join :: State -> Member -> IO ()
+join :: State -> Client -> IO ()
 join state sender =
   modifyMVar_ state $ \s -> do
     let s' = sender : s
@@ -33,49 +33,57 @@ join state sender =
     return s'
 
 -- | When a user leaves the room.
-leave :: State -> Member -> IO ()
-leave state sender@(id, room, _) = do
+leave :: State -> Client -> IO ()
+leave state sender@(Client id _ room _) = do
   s <- modifyMVar state $ \s ->
     let s' = filter ((/= id) . getId) s in return (s',s')
   liftIO $ sendToAll sender (Leave id id) s
 
--- | When a client asks for all room members.
-members :: State -> Member -> IO ()
+-- | Sends the client a list of all members of the room.
+-- The response does not contain the `sender` field.
+members :: State -> Client -> IO ()
 members state sender = do
-    ms <- map makeRoommate <$> readMVar state
-    liftIO $ pong sender $ Roommates ms $ getId sender
-  where makeRoommate (id,_,_) = Roommate id id $ (getId sender) == id
+    ms <- map makeMember <$> readMVar state
+    liftIO $ pong sender $ Members ms
+  where makeMember (Client id name _ _) = Member id name $ (getId sender) == id
 
 -- | When a room receives code.
-code :: State -> Member -> Code -> IO ()
+code :: State -> Client -> Code -> IO ()
 code state sender code =
     readMVar state >>= sendToAll sender c
   where c = code { code_sender = Just $ getId sender }
 
 -- | When a room receives a cursor.
-cursor :: State -> Member -> Cursor -> IO ()
+cursor :: State -> Client -> Cursor -> IO ()
 cursor state sender cursor =
     readMVar state >>= sendToAll sender c
   where c = cursor { cursor_sender = Just $ getId sender }
 
 -- | Change the nickname in the state and sends the
 -- updated member back to all members of the room.
-changeNick :: State -> Member -> ChangeNick -> IO ()
-changeNick state sender@(id,_,_) nick =
-    readMVar state >>= sendToAll sender n
-  where n = nick { changeNick_id = Just id
-                 , changeNick_sender = Just id
-                 }
+changeNick :: State -> Client -> ChangeNick -> IO ()
+changeNick state sender@(Client sId _ _ _) nick@(ChangeNick name _ _) =
+    modifyMVar_ state $ \s -> do
+      let s' = map updateClient s
+      liftIO $ sendToAll sender nick { changeNick_id = Just sId
+                                     , changeNick_sender = Just sId
+                                     } s'
+      return s'
+  where updateClient m@(Client id _ _ _) =
+          if id == (getId sender)
+            then m { client_name = name }
+            else m
 
 -- | Sends a message to a member.
-pong :: (Typeable a, ToJSON a) => Member -> a -> IO ()
-pong (_,_,conn) a = WS.sendTextData conn $ makeResponse a
+pong :: (Typeable a, ToJSON a) => Client -> a -> IO ()
+pong m a = WS.sendTextData conn $ makeResponse a
+  where conn = getConnection m
 
 -- | Sends the message to all members of the room.
-sendToAll :: (Typeable a, ToJSON a) => Member -> a -> Members -> IO ()
-sendToAll (_,room,_) a members =
-  forM_ members $ \(_,r,conn) -> do
-    when (r == room) $ WS.sendTextData conn $ makeResponse a
+sendToAll :: (Typeable a, ToJSON a) => Client -> a -> Clients -> IO ()
+sendToAll (Client _ _ roomA _) a clients =
+  forM_ clients $ \(Client _ _ roomB conn) -> do
+    when (roomA == roomB) $ WS.sendTextData conn $ makeResponse a
 
 -- | Transforms the given type to a valid response format.
 -- > Input: Code { code_content = "", code_file = "", ... }

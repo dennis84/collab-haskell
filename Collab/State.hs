@@ -1,21 +1,34 @@
 module Collab.State
   ( State
-  , Member
-  , Members
+  , Client(..)
+  , Clients
   , getId
+  , getName
   , getRoom
+  , getConnection
   ) where
 
 import Control.Concurrent (MVar)
 import Data.Text (Text)
 import Network.WebSockets (Connection)
 
-type State   = MVar Members
-type Member  = (Text, String, Connection)
-type Members = [Member]
+type State   = MVar Clients
+type Clients = [Client]
 
-getId :: Member -> Text
-getId (id, _, _) = id
+data Client = Client { client_id   :: Text
+                     , client_name :: Text
+                     , client_room :: Text
+                     , client_conn :: Connection
+                     }
 
-getRoom :: Member -> String
-getRoom (_, room, _) = room
+getId :: Client -> Text
+getId = client_id
+
+getName :: Client -> Text
+getName = client_name
+
+getRoom :: Client -> Text
+getRoom = client_room
+
+getConnection :: Client -> Connection
+getConnection = client_conn

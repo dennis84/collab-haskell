@@ -7,11 +7,11 @@ module Collab.Json
   , Code(..)
   , Cursor(..)
   , ChangeNick(..)
-  , Roommate(..)
-  , Roommates(..)
+  , Member(..)
+  , Members(..)
   ) where
 
-import Data.Aeson.TH (deriveJSON)
+import Data.Aeson.TH (deriveJSON, defaultOptions)
 import Data.Text (Text)
 import Data.Typeable (Typeable)
 import Collab.TH (options)
@@ -50,15 +50,12 @@ data ChangeNick = ChangeNick
   } deriving (Show, Typeable)
 $(deriveJSON options ''ChangeNick)
 
-data Roommate = Roommate
-  { roommate_id   :: Text
-  , roommate_name :: Text
-  , roommate_me   :: Bool
+data Member = Member
+  { member_id   :: Text
+  , member_name :: Text
+  , member_me   :: Bool
   } deriving (Show, Typeable)
-$(deriveJSON options ''Roommate)
+$(deriveJSON options ''Member)
 
-data Roommates = Roommates
-  { roommates_members :: [Roommate]
-  , roommates_sender  :: Text
-  } deriving (Show, Typeable)
-$(deriveJSON options ''Roommates)
+data Members = Members [Member] deriving (Show, Typeable)
+$(deriveJSON defaultOptions ''Members)

@@ -2,7 +2,8 @@ module Collab.Identifier
   ( generateID
   ) where
 
-import System.Random
+import Data.Text (Text, pack)
+import System.Random (getStdGen, randomRs)
 
-generateID :: IO String
-generateID = getStdGen >>= return . take 8 . randomRs ('a', 'z')
+generateID :: IO Text
+generateID = getStdGen >>= return . pack . take 8 . randomRs ('a', 'z')
