@@ -19,16 +19,9 @@ import Collab.Json
 import Collab.State
 import Collab.Util (textToByteString)
 
-hub :: State -> Client -> Text -> Text -> IO ()
-hub state sender event message = case event of
-    "code"        -> maybeDo code (decode m :: Maybe Code)
-    "cursor"      -> maybeDo cursor (decode m :: Maybe Cursor)
-    "change-nick" -> maybeDo changeNick (decode m :: Maybe ChangeNick)
-    "members"     -> members state sender
-    _             -> return ()
-  where maybeDo f m = maybe (return ()) (f state sender) m
-        m = textToByteString message
-
+-- | The main application. It accepts every request
+-- with at least one path segment. The path segment
+-- is used as room name.
 app :: State -> WS.ServerApp
 app state pending = do
     conn <- WS.acceptRequest pending
@@ -45,6 +38,26 @@ app state pending = do
     req = WS.pendingRequest pending
     pathSegments = decodePathSegments (WS.requestPath req)
 
+-- | The message hub. It distributes the messages to the
+-- corresponding actions.
+hub :: State -> Client -> Text -> Text -> IO ()
+hub state sender event message = case event of
+    "code"        -> maybeDo code (decode m :: Maybe Code)
+    "cursor"      -> maybeDo cursor (decode m :: Maybe Cursor)
+    "change-nick" -> maybeDo changeNick (decode m :: Maybe ChangeNick)
+    "members"     -> members state sender
+    _             -> return ()
+  where maybeDo f m = maybe (return ()) (f state sender) m
+        m = textToByteString message
+
+-- | Returns a tuple with two texts. The first text is the 
+-- event name and the other is the data. (If the given text
+-- doesn't contain data, then the second text will be empty.)
+--
+-- > parseMessage "code{}" 
+-- > ==> ("code", "{}")
+-- > parseMessage "members"
+-- > ==> ("members", "")
 parseMessage :: Text -> (Text, Text)
 parseMessage xs = (T.takeWhile f xs, T.dropWhile f xs)
   where f = (/= '{')

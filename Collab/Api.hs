@@ -43,9 +43,9 @@ leave state sender@(Client id _ room _) = do
 -- The response does not contain the `sender` field.
 members :: State -> Client -> IO ()
 members state sender = do
-    ms <- map makeMember <$> readMVar state
-    liftIO $ pong sender $ Members ms
-  where makeMember (Client id name _ _) = Member id name $ (getId sender) == id
+    liftIO $ map makeMember <$> readMVar state >>= pong sender . Members
+  where makeMember (Client id name _ _) =
+          Member id name $ id == getId sender
 
 -- | When a room receives code.
 code :: State -> Client -> Code -> IO ()
@@ -70,7 +70,7 @@ changeNick state sender@(Client sId _ _ _) nick@(ChangeNick name _ _) =
                                      } s'
       return s'
   where updateClient m@(Client id _ _ _) =
-          if id == (getId sender)
+          if id == getId sender
             then m { client_name = name }
             else m
 
@@ -86,7 +86,9 @@ sendToAll (Client _ _ roomA _) a clients =
     when (roomA == roomB) $ WS.sendTextData conn $ makeResponse a
 
 -- | Transforms the given type to a valid response format.
--- > Input: Code { code_content = "", code_file = "", ... }
--- > Output: code{"content":"", "file":"", ...}
+--
+-- > makeResponse $ Code "foo" "bar" Nothing
+-- > ==> "code{\"sender\":null,\"content\":\"foo\",\"file\":\"bar\"}"
 makeResponse :: (Typeable a, ToJSON a) => a -> B.ByteString
-makeResponse a = C.pack (slugifyType a) `B.append` (encode a)
+makeResponse a = t `B.append` encode a
+  where t = C.pack $ slugifyType a
