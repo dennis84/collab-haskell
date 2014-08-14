@@ -25,7 +25,7 @@ import Collab.Util (textToByteString)
 app :: State -> WS.ServerApp
 app state pending = do
     conn <- WS.acceptRequest pending
-    guard(length pathSegments > 0)
+    guard $ length pathSegments > 0
     let room = head pathSegments
     id <- generateID
     let client = Client id id room conn

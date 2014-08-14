@@ -15,11 +15,12 @@ import Network.WebSockets (Connection)
 type State   = MVar Clients
 type Clients = [Client]
 
-data Client = Client { client_id   :: Text
-                     , client_name :: Text
-                     , client_room :: Text
-                     , client_conn :: Connection
-                     }
+data Client = Client
+  { client_id   :: Text
+  , client_name :: Text
+  , client_room :: Text
+  , client_conn :: Connection
+  }
 
 getId :: Client -> Text
 getId = client_id
