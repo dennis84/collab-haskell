@@ -14,7 +14,6 @@ import qualified Data.Text as T
 import Network.HTTP.Types.URI (decodePathSegments)
 import qualified Network.WebSockets as WS
 import Collab.Api
-import Collab.Identifier (generateID)
 import Collab.Json
 import Collab.State
 import Collab.Util (textToByteString)

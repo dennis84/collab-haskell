@@ -2,6 +2,7 @@ module Collab.State
   ( State
   , Client(..)
   , Clients
+  , generateID
   , getId
   , getName
   , getRoom
@@ -9,8 +10,9 @@ module Collab.State
   ) where
 
 import Control.Concurrent (MVar)
-import Data.Text (Text)
+import Data.Text (Text, pack)
 import Network.WebSockets (Connection)
+import System.Random (getStdGen, randomRs)
 
 type State   = MVar Clients
 type Clients = [Client]
@@ -21,6 +23,10 @@ data Client = Client
   , client_room :: Text
   , client_conn :: Connection
   }
+
+-- | Generates a very unsafe random string.
+generateID :: IO Text
+generateID = getStdGen >>= return . pack . take 8 . randomRs ('a', 'z')
 
 getId :: Client -> Text
 getId = client_id
