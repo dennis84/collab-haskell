@@ -2,6 +2,7 @@
 
 module Collab.App
   ( app
+  , parseMessage
   ) where
 
 import Control.Applicative ((<$>))
