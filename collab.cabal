@@ -58,3 +58,4 @@ test-suite tests
     , transformers      >= 0.4
     , http-types        >= 0.8
     , text              >= 1
+    , aeson

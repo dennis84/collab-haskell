@@ -60,4 +60,4 @@ hub state sender event message = case event of
 -- > ==> ("members", "")
 parseMessage :: Text -> (Text, Text)
 parseMessage xs = (T.takeWhile f xs, T.dropWhile f xs)
-  where f = (/= '{')
+  where f x = (x /= '{') && (x /= '[')

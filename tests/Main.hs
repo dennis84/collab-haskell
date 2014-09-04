@@ -9,19 +9,33 @@ import Data.Text (Text)
 import Network.WebSockets
 import Test.Hspec
 import Collab.App (app, parseMessage)
+import Collab.Json
+import Collab.Util (textToByteString)
+import Data.Aeson (decode)
+import Data.Maybe (fromJust)
 
-withServerApp :: IO () -> IO ()
-withServerApp a = do
-    bracket start killThread (const a)
-  where start = do
-          state <- newMVar []
-          forkIO $ runServer "127.0.0.1" 9000 $ app state
+runServerApp = do
+  state <- newMVar []
+  runServer "127.0.0.1" 9000 $ app state
+
+withClient :: ClientApp () -> IO ()
+withClient = runClient "localhost" 9000 "/foo"
+
+specs = hspec $ do
+  describe "The Collab API" $ do
+    it "should send a join message" $ withClient $ \conn -> do
+      (event, _) <- parseMessage <$> receiveData conn
+      event `shouldBe` "join"
+      sendClose conn ("Bye" :: Text)
+
+    it "should return a list of all members of a room" $ withClient $ \conn -> do
+      _ <- receiveDataMessage conn
+      sendTextData conn ("members" :: Text)
+      (event, message) <- parseMessage <$> receiveData conn
+      let ms = decode (textToByteString message) :: Maybe [Member]
+      event `shouldBe` "members"
+      (length $ fromJust ms) `shouldBe` 1
+      sendClose conn ("Bye" :: Text)
 
 main :: IO ()
-main = hspec $ around withServerApp $ do
-  describe "The Collab API" $ do
-    it "should send a join message" $ do
-      runClient "localhost" 9000 "/foo" $ \conn -> do
-        (event, _) <- parseMessage <$> receiveData conn
-        event `shouldBe` "join"
-        sendClose conn ("Bye" :: Text)
+main = bracket (forkIO runServerApp) killThread (const specs)
