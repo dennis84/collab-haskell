@@ -21,21 +21,26 @@ runServerApp = do
 withClient :: ClientApp () -> IO ()
 withClient = runClient "localhost" 9000 "/foo"
 
+withNoopClient a = withClient $ \_ -> a
+
 specs = hspec $ do
   describe "The Collab API" $ do
-    it "should send a join message" $ withClient $ \conn -> do
-      (event, _) <- parseMessage <$> receiveData conn
-      event `shouldBe` "join"
-      sendClose conn ("Bye" :: Text)
+    it "should send a join message" $
+      withClient $ \conn -> do
+        (event, _) <- parseMessage <$> receiveData conn
+        event `shouldBe` "join"
+        sendClose conn ("Bye" :: Text)
 
-    it "should return a list of all members of a room" $ withClient $ \conn -> do
-      _ <- receiveDataMessage conn
-      sendTextData conn ("members" :: Text)
-      (event, message) <- parseMessage <$> receiveData conn
-      let ms = decode (textToByteString message) :: Maybe [Member]
-      event `shouldBe` "members"
-      (length $ fromJust ms) `shouldBe` 1
-      sendClose conn ("Bye" :: Text)
+    it "should return a list of all members of a room" $
+      withNoopClient $
+      withClient $ \conn -> do
+        _ <- receiveDataMessage conn
+        sendTextData conn ("members" :: Text)
+        (event, message) <- parseMessage <$> receiveData conn
+        let ms = decode (textToByteString message) :: Maybe [Member]
+        event `shouldBe` "members"
+        (length $ fromJust ms) `shouldBe` 2
+        sendClose conn ("Bye" :: Text)
 
 main :: IO ()
 main = bracket (forkIO runServerApp) killThread (const specs)
