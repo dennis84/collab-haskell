@@ -55,7 +55,7 @@ test-suite tests
     Collab.Test.Api
 
   build-depends:
-      hspec            >= 1.11
+      HUnit             >= 1.2
     , base
     , collab
     , websockets        >= 0.8

@@ -1,7 +1,7 @@
-import Control.Exception (bracket)
-import Control.Concurrent (forkIO, killThread)
-import Collab.Test.Api (specs)
-import Collab.Test.Util
+import Collab.Test.Api (tests)
+import Test.HUnit
 
-main :: IO ()
-main = bracket (forkIO runServerApp) killThread (const specs)
+main :: IO Counts
+main = runTestTT $ TestList
+         [ TestLabel "API" tests
+         ]

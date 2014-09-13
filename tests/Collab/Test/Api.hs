@@ -1,19 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Collab.Test.Api
-  ( specs
+  ( tests
   ) where
 
 import Control.Applicative ((<$>))
 import Control.Concurrent (forkIO)
 import Data.Text (Text, unpack)
+import Data.Maybe (fromJust)
+import Data.Aeson (decode)
 import Network.WebSockets
-import Test.Hspec
+import Test.HUnit
 import Collab.App (parseMessage)
 import Collab.Json
 import Collab.Util (textToByteString)
-import Data.Aeson (decode)
-import Data.Maybe (fromJust)
 import Collab.Test.Util
 
 loopA conn = do
@@ -22,7 +22,7 @@ loopA conn = do
   loopA conn
 
 loopB conn = do
-  (event, _) <- parseMessage <$> receiveData conn
+  (event, message) <- parseMessage <$> receiveData conn
   print $ "Client B: " ++ unpack event
   case event of
     "join"   -> do
@@ -37,9 +37,6 @@ loopB conn = do
     "cursor" -> return ()
     _        -> error "Fail"
 
-specs = hspec $ do
-  describe "The Collab API" $ do
-    it "..." $ do
-      _ <- forkIO $ runClient "localhost" 9000 "/foo" loopA
-      _ <- runClient "localhost" 9000 "/foo" loopB
-      True `shouldBe` True
+tests = TestCase $ withServerApp $ do
+  _ <- forkIO $ runClient "localhost" 9000 "/foo" loopA
+  runClient "localhost" 9000 "/foo" loopB
