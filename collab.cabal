@@ -50,6 +50,10 @@ test-suite tests
     -Wall
     -fno-warn-missing-signatures
 
+  other-modules:
+    Collab.Test.Util
+    Collab.Test.Api
+
   build-depends:
       hspec            >= 1.11
     , base
