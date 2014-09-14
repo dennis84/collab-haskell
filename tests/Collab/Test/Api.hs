@@ -30,6 +30,8 @@ loopB conn = do
       loopB conn
     "members" -> do
       sendTextData conn ("code{\"content\":\"foo\",\"file\":\"foo.hs\"}" :: Text)
+      let members = decode (textToByteString message) :: Maybe [Member]
+      assertEqual "" 2 (length $ fromJust members)
       loopB conn
     "code" -> do
       sendTextData conn ("cursor{\"x\":1,\"y\":2,\"file\":\"foo.hs\"}" :: Text)
@@ -38,5 +40,7 @@ loopB conn = do
     _        -> error "Fail"
 
 tests = TestCase $ withServerApp $ do
-  _ <- forkIO $ runClient "localhost" 9000 "/foo" loopA
-  runClient "localhost" 9000 "/foo" loopB
+  _ <- forkIO $ runClientApp loopA
+  waitSome
+  _ <- runClientApp loopB
+  return ()
