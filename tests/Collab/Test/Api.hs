@@ -23,21 +23,28 @@ loopA conn = do
 
 loopB conn = do
   (event, message) <- parseMessage <$> receiveData conn
+  let messageBS = textToByteString message
   print $ "Client B: " ++ unpack event
   case event of
-    "join"   -> do
+    "join" -> do
       sendTextData conn ("members" :: Text)
       loopB conn
     "members" -> do
-      sendTextData conn ("code{\"content\":\"foo\",\"file\":\"foo.hs\"}" :: Text)
-      let members = decode (textToByteString message) :: Maybe [Member]
+      let members = decode messageBS :: Maybe [Member]
       assertEqual "" 2 (length $ fromJust members)
+      sendTextData conn ("code{\"content\":\"foo\",\"file\":\"foo.hs\"}" :: Text)
       loopB conn
     "code" -> do
       sendTextData conn ("cursor{\"x\":1,\"y\":2,\"file\":\"foo.hs\"}" :: Text)
       loopB conn
-    "cursor" -> return ()
-    _        -> error "Fail"
+    "cursor" -> do
+      sendTextData conn ("change-nick{\"name\":\"dennis\"}" :: Text)
+      loopB conn
+    "change-nick" -> do
+      let nick = decode messageBS :: Maybe ChangeNick
+      assertEqual "" "dennis" $ changeNick_name $ fromJust nick
+      return ()
+    _ -> error "Fail"
 
 tests = TestCase $ withServerApp $ do
   _ <- forkIO $ runClientApp loopA
