@@ -50,4 +50,5 @@ tests = TestCase $ withServerApp $ do
   _ <- forkIO $ runClientApp loopA
   waitSome
   _ <- runClientApp loopB
+  assertEqual "" True False
   return ()
