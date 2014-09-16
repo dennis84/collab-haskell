@@ -14,11 +14,13 @@ import qualified Data.ByteString.Lazy as B
 textToByteString :: Text -> B.ByteString
 textToByteString = E.encodeUtf8 . T.fromStrict
 
+-- | Converts a string into a slug.
 slugify :: Char -> String -> String
-slugify d (x:xs) = toLower x:f xs
+slugify separator (x:xs) = toLower x:f xs
   where f []                 = []
-        f (c:cs) | isUpper c = d:toLower c:f cs
+        f (c:cs) | isUpper c = separator:toLower c:f cs
                  | otherwise = c:f cs
 
+-- | Converts a typable data type into a slug.
 slugifyType :: (Typeable a) => a -> String
 slugifyType = slugify '-' . show . typeOf
