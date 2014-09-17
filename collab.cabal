@@ -52,7 +52,7 @@ test-suite tests
 
   other-modules:
     Collab.Test.Util
-    Collab.Test.Api
+    Collab.Test.ApiTests
 
   build-depends:
       HUnit             >= 1.2

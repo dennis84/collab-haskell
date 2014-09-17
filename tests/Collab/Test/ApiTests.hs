@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Collab.Test.Api
-  ( apiTest
+module Collab.Test.ApiTests
+  ( tests
   ) where
 
 import Control.Applicative ((<$>))
@@ -46,7 +46,7 @@ loopB conn = do
       return ()
     _ -> error "Fail"
 
-apiTest = TestCase $ withServerApp $ do
+tests = TestCase $ withServerApp $ do
   _ <- forkIO $ runClientApp loopA
   waitSome
   _ <- runClientApp loopB
