@@ -12,5 +12,5 @@ tests = TestList
   [ TestCase $ assertEqual "" "foo-bar" $ slugify '-' "FooBar"
   , TestCase $ assertEqual "" "blah_blub" $ slugify '_' "blahBlub"
   , TestCase $ assertEqual "" "join" $ slugifyType $ Join "" ""
-  , TestCase $ assertEqual "" "change-nick" $ slugifyType $ ChangeNick ""
+  , TestCase $ assertEqual "" "change-nick" $ slugifyType $ ChangeNick "" Nothing Nothing
   ]
