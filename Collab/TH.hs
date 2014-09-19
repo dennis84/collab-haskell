@@ -3,11 +3,11 @@ module Collab.TH
   ) where
 
 import Data.Aeson.TH (Options, defaultOptions, fieldLabelModifier)
-import Collab.Util (slugify)
+import Collab.Naming (toUnderscore)
 
 options :: Options
 options = defaultOptions
-  { fieldLabelModifier = slugify '_' . dropPrefix
+  { fieldLabelModifier = toUnderscore . dropPrefix
   }
 
 dropPrefix :: String -> String

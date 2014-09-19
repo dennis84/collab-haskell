@@ -15,13 +15,13 @@ import Control.Monad (forM_, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (ToJSON, encode)
 import Data.Text (Text, pack)
-import Data.Typeable (Typeable)
+import Data.Typeable (Typeable, typeOf)
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.Char8 as C
 import qualified Network.WebSockets as WS
 import Collab.Json
 import Collab.State
-import Collab.Util (slugifyType)
+import Collab.Naming (toDash)
 
 -- | When a user enters the room.
 join :: State -> Client -> IO ()
@@ -91,4 +91,4 @@ sendToAll (Client _ _ roomA _) a clients =
 -- > ==> "code{\"sender\":null,\"content\":\"foo\",\"file\":\"bar\"}"
 makeResponse :: (Typeable a, ToJSON a) => a -> B.ByteString
 makeResponse a = t `B.append` encode a
-  where t = C.pack $ slugifyType a
+  where t = C.pack . toDash . show $ typeOf a

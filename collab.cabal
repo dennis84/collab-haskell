@@ -19,6 +19,7 @@ library
     Collab.State
     Collab.TH
     Collab.Util
+    Collab.Naming
 
   build-depends:
       base              >= 4      && <5
@@ -49,11 +50,6 @@ test-suite tests
   ghc-options:
     -Wall
     -fno-warn-missing-signatures
-
-  other-modules:
-    Collab.Test.Util
-    Collab.Test.ApiTests
-    Collab.Test.AppTests
 
   build-depends:
       HUnit             >= 1.2

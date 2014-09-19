@@ -3,7 +3,7 @@ import System.Exit (exitFailure)
 import Test.HUnit
 import qualified Collab.Test.ApiTests as Api
 import qualified Collab.Test.AppTests as App
-import qualified Collab.Test.UtilTests as Util
+import qualified Collab.Test.NamingTests as Naming
 
 main :: IO ()
 main = do res <- runTestTT tests
@@ -12,5 +12,5 @@ main = do res <- runTestTT tests
 tests = TestList
   [ TestLabel "Api" Api.tests
   , TestLabel "App" App.tests
-  , TestLabel "Util" Util.tests
+  , TestLabel "Naming" Naming.tests
   ]
