@@ -22,12 +22,13 @@ import qualified Network.WebSockets as WS
 import Collab.Json
 import Collab.State
 import Collab.Naming (toDash)
+import Collab.Util (replaceWith)
 
 -- | When a user enters the room.
 join :: State -> Client -> IO ()
 join state sender =
   modifyMVar_ state $ \s -> do
-    let s' = sender : s
+    let s' = sender:s
     let id = getId sender
     sendToAll sender (Join id id) s'
     return s'
@@ -36,7 +37,7 @@ join state sender =
 leave :: State -> Client -> IO ()
 leave state sender@(Client id _ room _) = do
   s <- modifyMVar state $ \s ->
-    let s' = filter ((/= id) . getId) s in return (s',s')
+    let s' = filter (/= sender) s in return (s',s')
   liftIO $ sendToAll sender (Leave id id) s
 
 -- | Sends the client a list of all members of the room.
@@ -64,15 +65,11 @@ cursor state sender cursor =
 changeNick :: State -> Client -> ChangeNick -> IO ()
 changeNick state sender@(Client sId _ _ _) nick@(ChangeNick name _ _) =
     modifyMVar_ state $ \s -> do
-      let s' = map updateClient s
+      let s' = replaceWith (== sender) (\x -> x { client_name = name }) s
       liftIO $ sendToAll sender nick { changeNick_id = Just sId
                                      , changeNick_sender = Just sId
                                      } s'
       return s'
-  where updateClient m@(Client id _ _ _) =
-          if id == getId sender
-            then m { client_name = name }
-            else m
 
 -- | Sends a message to a member.
 pong :: (Typeable a, ToJSON a) => Client -> a -> IO ()

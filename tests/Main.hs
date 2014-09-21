@@ -4,6 +4,7 @@ import Test.HUnit
 import qualified Collab.Test.ApiTests as Api
 import qualified Collab.Test.AppTests as App
 import qualified Collab.Test.NamingTests as Naming
+import qualified Collab.Test.UtilTests as Util
 
 main :: IO ()
 main = do res <- runTestTT tests
@@ -13,4 +14,5 @@ tests = TestList
   [ TestLabel "Api" Api.tests
   , TestLabel "App" App.tests
   , TestLabel "Naming" Naming.tests
+  , TestLabel "Util" Util.tests
   ]

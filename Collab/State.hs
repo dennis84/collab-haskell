@@ -24,6 +24,9 @@ data Client = Client
   , client_conn :: Connection
   }
 
+instance Eq Client where
+  (==) (Client a _ _ _) (Client b _ _ _) = a == b
+
 -- | Generates a very unsafe random string.
 generateID :: IO Text
 generateID = getStdGen >>= return . pack . take 8 . randomRs ('a', 'z')
