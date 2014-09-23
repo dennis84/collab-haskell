@@ -30,6 +30,7 @@ library
     , random            >= 1
     , aeson             >= 0.8
     , bytestring        >= 0.9
+    , containers        >= 0.5
 
 executable collab
   main-is:          ../Main.hs

@@ -8,13 +8,14 @@ module Collab.Test.Util
   ) where
 
 import Control.Exception (SomeException, handle)
-import Control.Concurrent (newMVar, forkIO, killThread, threadDelay)
+import Control.Concurrent (forkIO, killThread, threadDelay)
 import Network.WebSockets
 import Collab.App (app)
+import Collab.State (new)
 
 runServerApp :: IO ()
 runServerApp = do
-  state <- newMVar []
+  state <- new
   runServer "127.0.0.1" 9000 $ app state
 
 withServerApp :: IO () -> IO ()
