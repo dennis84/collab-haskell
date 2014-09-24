@@ -33,14 +33,15 @@ join state sender = do
 
 -- | When a user leaves the room.
 leave :: State -> Client -> IO ()
-leave state sender@(Client id _ room _) = do
-  liftIO $ delete state id
-  readMVar state >>= sendToAll sender (Leave id id)
+leave state sender = do
+    liftIO $ delete state id
+    readMVar state >>= sendToAll sender (Leave id id)
+  where id = getId sender
 
 -- | Sends the client a list of all members of the room.
 -- The response does not contain the `sender` field.
 members :: State -> Client -> IO ()
-members state sender = do
+members state sender =
     map makeMember <$> Map.elems <$> readMVar state >>= pong sender . Members
   where makeMember (Client id name _ _) =
           Member id name $ id == getId sender
