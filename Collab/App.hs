@@ -17,7 +17,7 @@ import qualified Network.WebSockets as WS
 import Collab.Api
 import Collab.Json
 import Collab.State
-import Collab.Util (textToByteString)
+import Collab.Util (textToByteString, generateID)
 
 -- | The main application. It accepts every request
 -- with at least one path segment. The path segment

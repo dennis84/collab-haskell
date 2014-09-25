@@ -2,7 +2,6 @@ module Collab.State
   ( State
   , Client(..)
   , Clients
-  , generateID
   , getId
   , getName
   , getRoom
@@ -16,9 +15,8 @@ module Collab.State
 import Control.Concurrent (MVar, newMVar, readMVar, modifyMVar_)
 import Control.Monad (liftM)
 import qualified Data.Map as Map
-import Data.Text (Text, pack)
+import Data.Text (Text)
 import Network.WebSockets (Connection)
-import System.Random (getStdGen, randomRs)
 import Prelude hiding (lookup)
 
 -- | Client stuff
@@ -64,7 +62,3 @@ delete state id =
 lookup :: State -> Text -> IO (Maybe Client)
 lookup state id =
   Map.lookup id `liftM` readMVar state
-
--- | Generates a very unsafe random string.
-generateID :: IO Text
-generateID = getStdGen >>= return . pack . take 8 . randomRs ('a', 'z')
