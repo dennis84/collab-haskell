@@ -7,7 +7,7 @@ module Collab.App
 
 import Control.Applicative ((<$>))
 import Control.Exception (finally)
-import Control.Monad (forever, guard)
+import Control.Monad (forever, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (decode)
 import Data.Text (Text)
@@ -25,7 +25,7 @@ import Collab.Util (textToByteString, generateID)
 app :: State -> WS.ServerApp
 app state pending = do
     conn <- WS.acceptRequest pending
-    guard $ length pathSegments > 0
+    when (length pathSegments /= 1) $ error "Connection failed"
     let room = head pathSegments
     id <- generateID
     let client = Client id id room conn
