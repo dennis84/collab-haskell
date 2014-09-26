@@ -14,9 +14,11 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Network.HTTP.Types.URI (decodePathSegments)
 import qualified Network.WebSockets as WS
+
 import Collab.Api
 import Collab.Json
-import Collab.State
+import Collab.State (State)
+import Collab.Client
 import Collab.Util (textToByteString, generateID)
 
 -- | The main application. It accepts every request

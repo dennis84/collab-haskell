@@ -17,6 +17,7 @@ library
     Collab.App
     Collab.Json
     Collab.State
+    Collab.Client
     Collab.TH
     Collab.Util
     Collab.Naming

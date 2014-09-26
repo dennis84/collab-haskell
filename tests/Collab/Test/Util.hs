@@ -11,11 +11,11 @@ import Control.Exception (SomeException, handle)
 import Control.Concurrent (forkIO, killThread, threadDelay)
 import Network.WebSockets
 import Collab.App (app)
-import Collab.State (new)
+import qualified Collab.State as State
 
 runServerApp :: IO ()
 runServerApp = do
-  state <- new
+  state <- State.new
   runServer "127.0.0.1" 9000 $ app state
 
 withServerApp :: IO () -> IO ()

@@ -1,49 +1,18 @@
 module Collab.State
   ( State
-  , Client(..)
   , Clients
-  , getId
-  , getName
-  , getRoom
-  , getConnection
   , new
   , insert
   , delete
   , lookup
   ) where
 
+import Prelude hiding (lookup)
 import Control.Concurrent (MVar, newMVar, readMVar, modifyMVar_)
 import Control.Monad (liftM)
 import qualified Data.Map as Map
 import Data.Text (Text)
-import Network.WebSockets (Connection)
-import Prelude hiding (lookup)
-
--- | Client stuff
-
-data Client = Client
-  { client_id   :: Text
-  , client_name :: Text
-  , client_room :: Text
-  , client_conn :: Connection
-  }
-
-instance Eq Client where
-  (==) (Client a _ _ _) (Client b _ _ _) = a == b
-
-getId :: Client -> Text
-getId = client_id
-
-getName :: Client -> Text
-getName = client_name
-
-getRoom :: Client -> Text
-getRoom = client_room
-
-getConnection :: Client -> Connection
-getConnection = client_conn
-
--- | State API
+import Collab.Client
 
 type Clients = Map.Map Text Client
 type State = MVar Clients

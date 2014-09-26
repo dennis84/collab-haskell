@@ -14,27 +14,30 @@ import Control.Concurrent (modifyMVar, modifyMVar_, readMVar)
 import Control.Monad (forM_, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (ToJSON, encode)
-import Data.Text (Text, pack)
-import Data.Typeable (Typeable, typeOf)
-import qualified Data.Map as Map
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.Char8 as C
+import qualified Data.Map as Map
+import Data.Text (Text, pack)
+import Data.Typeable (Typeable, typeOf)
 import qualified Network.WebSockets as WS
+
+import Collab.Client
 import Collab.Json
-import Collab.State
 import Collab.Naming (toDash)
+import Collab.State (Clients, State)
+import qualified Collab.State as State
 
 -- | When a user enters the room.
 join :: State -> Client -> IO ()
 join state sender = do
-    liftIO $ insert state id sender
+    liftIO $ State.insert state id sender
     readMVar state >>= sendToAll sender (Join id id)
   where id = getId sender
 
 -- | When a user leaves the room.
 leave :: State -> Client -> IO ()
 leave state sender = do
-    liftIO $ delete state id
+    liftIO $ State.delete state id
     readMVar state >>= sendToAll sender (Leave id id)
   where id = getId sender
 
@@ -62,7 +65,7 @@ cursor state sender cursor =
 -- updated member back to all members of the room.
 changeNick :: State -> Client -> ChangeNick -> IO ()
 changeNick state sender@(Client sId _ _ _) nick@(ChangeNick name _ _) = do
-  liftIO $ insert state sId sender { client_name = name }
+  liftIO $ State.insert state sId sender { client_name = name }
   readMVar state >>= sendToAll sender nick { changeNick_id = Just sId
                                            , changeNick_sender = Just sId
                                            }
