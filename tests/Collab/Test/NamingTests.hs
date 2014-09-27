@@ -10,5 +10,5 @@ import Collab.Naming
 tests = TestList
   [ TestCase $ "foo-bar"   @=? toDash "FooBar"
   , TestCase $ "blah_blub" @=? toUnderscore "blahBlub"
-  , TestCase $ "" @=? toDash ""
+  , TestCase $ ""          @=? toDash ""
   ]

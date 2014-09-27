@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Collab.Test.ApiTests
+module Collab.Test.FunctionalTests
   ( tests
   ) where
 
