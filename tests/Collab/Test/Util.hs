@@ -20,14 +20,14 @@ runServerApp = do
 
 withServerApp :: IO () -> IO ()
 withServerApp action = do
-  thread <- forkIO $ runServerApp
+  thread <- forkIO runServerApp
   waitSome
   result <- action
   killThread thread
   return result
 
 runClientApp :: ClientApp () -> IO ()
-runClientApp action = retry $ runClient "localhost" 9000 "/foo" action
+runClientApp = retry . runClient "localhost" 9000 "/foo"
 
 waitSome :: IO ()
 waitSome = threadDelay $ 200 * 1000
