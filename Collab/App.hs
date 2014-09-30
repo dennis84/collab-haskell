@@ -52,14 +52,14 @@ hub state sender event message = case event of
   where maybeDo f m = maybe (return ()) (f state sender) m
         m = textToByteString message
 
--- | Returns a tuple with two texts. The first text is the 
+-- | Returns a tuple with two texts. The first text is the
 -- event name and the other is the data. (If the given text
 -- doesn't contain data, then the second text will be empty.)
 --
--- > parseMessage "code{}" 
+-- > parseMessage "code{}"
 -- > ==> ("code", "{}")
 -- > parseMessage "members"
 -- > ==> ("members", "")
 parseMessage :: Text -> (Text, Text)
 parseMessage xs = (T.takeWhile f xs, T.dropWhile f xs)
-  where f x = (x /= '{') && (x /= '[')
+  where f x = x /= '{' && x /= '['
