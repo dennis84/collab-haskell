@@ -27,7 +27,7 @@ withServerApp action = do
   return result
 
 runClientApp :: ClientApp () -> IO ()
-runClientApp = retry . runClient "localhost" 9000 "/foo"
+runClientApp = retry . runClient "127.0.0.1" 9000 "/foo"
 
 waitSome :: IO ()
 waitSome = threadDelay $ 200 * 1000

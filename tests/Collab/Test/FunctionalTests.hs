@@ -31,7 +31,7 @@ loopB conn = do
       loopB conn
     "members" -> do
       let members = decode messageBS :: Maybe [Member]
-      assertEqual "" 2 (length $ fromJust members)
+      (length $ fromJust members) @=? 2
       sendTextData conn ("code{\"content\":\"foo\",\"file\":\"foo.hs\"}" :: Text)
       loopB conn
     "code" -> do
@@ -42,7 +42,7 @@ loopB conn = do
       loopB conn
     "change-nick" -> do
       let nick = decode messageBS :: Maybe ChangeNick
-      assertEqual "" "dennis" $ changeNick_name $ fromJust nick
+      (changeNick_name $ fromJust nick) @=? "dennis"
       return ()
     _ -> error "Fail"
 
