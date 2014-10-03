@@ -45,8 +45,11 @@ leave state sender = do
 -- The response does not contain the `sender` field.
 members :: State -> Client -> IO ()
 members state sender =
-    map makeMember <$> Map.elems <$> readMVar state >>= pong sender . Members
-  where makeMember (Client id name _ _) =
+    map makeMember   <$>
+    filter roommates <$>
+    Map.elems        <$> readMVar state >>= pong sender . Members
+  where roommates (Client _ _ room _) = room == getRoom sender
+        makeMember (Client id name _ _) =
           Member id name $ id == getId sender
 
 -- | When a room receives code.
