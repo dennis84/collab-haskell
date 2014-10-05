@@ -31,8 +31,8 @@ loopB conn = do
       loopB conn
     "members" -> do
       let members = decode messageBS :: Maybe [Member]
-      (length $ fromJust members) @=? 2
-      sendTextData conn ("code{\"content\":\"foo\",\"file\":\"foo.hs\"}" :: Text)
+      2 @=? (length $ fromJust members)
+      sendTextData conn ("code{\"content\":\"foo\",\"file\":\"foo.hs\",\"lang\":\"haskell\"}" :: Text)
       loopB conn
     "code" -> do
       sendTextData conn ("cursor{\"x\":1,\"y\":2,\"file\":\"foo.hs\"}" :: Text)
@@ -42,7 +42,7 @@ loopB conn = do
       loopB conn
     "change-nick" -> do
       let nick = decode messageBS :: Maybe ChangeNick
-      (changeNick_name $ fromJust nick) @=? "dennis"
+      "dennis" @=? (changeNick_name $ fromJust nick)
       return ()
     _ -> error "Fail"
 

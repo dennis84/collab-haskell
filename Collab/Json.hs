@@ -31,6 +31,7 @@ $(deriveJSON options ''Leave)
 data Code = Code
   { code_content :: Text
   , code_file    :: Text
+  , code_lang    :: Text
   , code_sender  :: Maybe Text
   } deriving (Show, Typeable)
 $(deriveJSON options ''Code)
