@@ -17,14 +17,12 @@ import Data.Typeable (Typeable)
 import Collab.TH (options)
 
 data Join = Join
-  { join_id     :: Text
-  , join_sender :: Text
+  { join_id :: Text
   } deriving (Show, Typeable)
 $(deriveJSON options ''Join)
 
 data Leave = Leave
-  { leave_id     :: Text
-  , leave_sender :: Text
+  { leave_id :: Text
   } deriving (Show, Typeable)
 $(deriveJSON options ''Leave)
 
@@ -32,22 +30,19 @@ data Code = Code
   { code_content :: Text
   , code_file    :: Text
   , code_lang    :: Text
-  , code_sender  :: Maybe Text
   } deriving (Show, Typeable)
 $(deriveJSON options ''Code)
 
 data Cursor = Cursor
-  { cursor_x      :: Int
-  , cursor_y      :: Int
-  , cursor_file   :: Text
-  , cursor_sender :: Maybe Text
+  { cursor_x    :: Int
+  , cursor_y    :: Int
+  , cursor_file :: Text
   } deriving (Show, Typeable)
 $(deriveJSON options ''Cursor)
 
 data ChangeNick = ChangeNick
-  { changeNick_name   :: Text
-  , changeNick_id     :: Maybe Text
-  , changeNick_sender :: Maybe Text
+  { changeNick_name :: Text
+  , changeNick_id   :: Maybe Text
   } deriving (Show, Typeable)
 $(deriveJSON options ''ChangeNick)
 

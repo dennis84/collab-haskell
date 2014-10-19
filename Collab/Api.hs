@@ -17,7 +17,8 @@ import Data.Aeson (ToJSON, encode)
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Lazy.Char8 as C
 import qualified Data.Map as Map
-import Data.Text (Text, pack)
+import Data.Text (Text)
+import qualified Data.Text as T
 import Data.Typeable (Typeable, typeOf)
 import qualified Network.WebSockets as WS
 
@@ -31,14 +32,14 @@ import qualified Collab.State as State
 join :: State -> Client -> IO ()
 join state sender = do
     liftIO $ State.insert state sender
-    readMVar state >>= sendToAll sender (Join id id)
+    readMVar state >>= sendToAll sender (Join id)
   where id = getId sender
 
 -- | When a user leaves the room.
 leave :: State -> Client -> IO ()
 leave state sender = do
     liftIO $ State.delete state sender
-    readMVar state >>= sendToAll sender (Leave id id)
+    readMVar state >>= sendToAll sender (Leave id)
   where id = getId sender
 
 -- | Sends the client a list of all members of the room.
@@ -55,39 +56,35 @@ members state sender =
 -- | When a room receives code.
 code :: State -> Client -> Code -> IO ()
 code state sender code =
-    readMVar state >>= sendToAll sender c
-  where c = code { code_sender = Just $ getId sender }
+    readMVar state >>= sendToAll sender code
 
 -- | When a room receives a cursor.
 cursor :: State -> Client -> Cursor -> IO ()
 cursor state sender cursor =
-    readMVar state >>= sendToAll sender c
-  where c = cursor { cursor_sender = Just $ getId sender }
+    readMVar state >>= sendToAll sender cursor
 
 -- | Change the nickname in the state and sends the
 -- updated member back to all members of the room.
 changeNick :: State -> Client -> ChangeNick -> IO ()
-changeNick state sender@(Client sId _ _ _) nick@(ChangeNick name _ _) = do
+changeNick state sender@(Client sId _ _ _) nick@(ChangeNick name _) = do
   liftIO $ State.insert state sender { client_name = name }
   readMVar state >>= sendToAll sender nick { changeNick_id = Just sId
-                                           , changeNick_sender = Just sId
                                            }
 
 -- | Sends a message to a member.
 pong :: (Typeable a, ToJSON a) => Client -> a -> IO ()
-pong m a = WS.sendTextData conn $ makeResponse a
-  where conn = getConnection m
+pong (Client id _ _ conn) a = WS.sendTextData conn $ makeResponse a id
 
 -- | Sends the message to all members of the room.
 sendToAll :: (Typeable a, ToJSON a) => Client -> a -> Clients -> IO ()
-sendToAll (Client _ _ roomA _) a clients =
+sendToAll (Client id _ roomA _) a clients =
   forM_ (Map.elems clients) $ \(Client _ _ roomB conn) -> do
-    when (roomA == roomB) $ WS.sendTextData conn $ makeResponse a
+    when (roomA == roomB) $ WS.sendTextData conn $ makeResponse a id
 
 -- | Transforms the given type to a valid response format.
 --
--- > makeResponse $ Code "foo" "bar" Nothing
--- > ==> "code{\"sender\":null,\"content\":\"foo\",\"file\":\"bar\"}"
-makeResponse :: (Typeable a, ToJSON a) => a -> B.ByteString
-makeResponse a = t `B.append` encode a
-  where t = C.pack . toDash . show $ typeOf a
+-- > makeResponse $ (Code "foo" "bar") "sender"
+-- > ==> "code@sender{\"sender\":null,\"content\":\"foo\",\"file\":\"bar\"}"
+makeResponse :: (Typeable a, ToJSON a) => a -> Text -> B.ByteString
+makeResponse a s = t `B.append` encode a
+  where t = C.pack $ (toDash . show $ typeOf a) ++ "@" ++ T.unpack s

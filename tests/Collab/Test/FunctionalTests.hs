@@ -11,18 +11,18 @@ import Data.Maybe (fromJust)
 import Data.Aeson (decode)
 import Network.WebSockets
 import Test.HUnit
-import Collab.App (parseMessage)
+import Collab.Parse (parseMessage)
 import Collab.Json
 import Collab.Util (textToByteString)
 import Collab.Test.Util
 
 loopA conn = do
-  (event, _) <- parseMessage <$> receiveData conn
+  (event, _, _) <- parseMessage <$> receiveData conn
   print $ "Client A: " ++ unpack event
   loopA conn
 
 loopB conn = do
-  (event, message) <- parseMessage <$> receiveData conn
+  (event, message, _) <- parseMessage <$> receiveData conn
   let messageBS = textToByteString message
   print $ "Client B: " ++ unpack event
   case event of

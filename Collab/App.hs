@@ -2,7 +2,6 @@
 
 module Collab.App
   ( app
-  , parseMessage
   ) where
 
 import Control.Applicative ((<$>))
@@ -19,6 +18,7 @@ import qualified Collab.Api as Api
 import Collab.Json
 import Collab.State (State)
 import Collab.Client
+import Collab.Parse (parseMessage)
 import Collab.Util (textToByteString, generateID)
 
 -- | The main application. It accepts every request
@@ -34,7 +34,7 @@ app state pending = do
     liftIO $ Api.join state client
     flip finally (Api.leave state client) $ do
       forever $ do
-        (event, message) <- parseMessage <$> WS.receiveData conn
+        (event, message, _) <- parseMessage <$> WS.receiveData conn
         liftIO $ hub state client event message
   where
     req = WS.pendingRequest pending
@@ -51,15 +51,3 @@ hub state sender event message = case event of
     _             -> return ()
   where maybeDo f m = maybe (return ()) (f state sender) m
         m = textToByteString message
-
--- | Returns a tuple with two texts. The first text is the
--- event name and the other is the data. (If the given text
--- doesn't contain data, then the second text will be empty.)
---
--- > parseMessage "code{}"
--- > ==> ("code", "{}")
--- > parseMessage "members"
--- > ==> ("members", "")
-parseMessage :: Text -> (Text, Text)
-parseMessage xs = (T.takeWhile f xs, T.dropWhile f xs)
-  where f x = x /= '{' && x /= '['

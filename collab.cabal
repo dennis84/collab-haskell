@@ -21,6 +21,7 @@ library
     Collab.TH
     Collab.Util
     Collab.Naming
+    Collab.Parse
 
   build-depends:
       base              >= 4      && <5
