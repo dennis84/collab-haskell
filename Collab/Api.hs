@@ -10,22 +10,13 @@ module Collab.Api
   ) where
 
 import Control.Applicative ((<$>))
-import Control.Concurrent (modifyMVar, modifyMVar_, readMVar)
-import Control.Monad (forM_, when)
+import Control.Concurrent (readMVar)
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson (ToJSON, encode)
-import qualified Data.ByteString.Lazy as B
-import qualified Data.ByteString.Lazy.Char8 as C
 import qualified Data.Map as Map
-import Data.Text (Text)
-import qualified Data.Text as T
-import Data.Typeable (Typeable, typeOf)
-import qualified Network.WebSockets as WS
 
 import Collab.Client
 import Collab.Json
-import Collab.Naming (toDash)
-import Collab.State (Clients, State)
+import Collab.State (State)
 import Collab.Response (pongT, broadcastT)
 import qualified Collab.State as State
 

@@ -6,8 +6,7 @@ module Collab.State
   , delete
   ) where
 
-import Control.Concurrent (MVar, newMVar, readMVar, modifyMVar_)
-import Control.Monad (liftM)
+import Control.Concurrent (MVar, newMVar, modifyMVar_)
 import qualified Data.Map as Map
 import Data.Text (Text)
 import Collab.Client

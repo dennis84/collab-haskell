@@ -10,7 +10,6 @@ import Control.Monad (forever, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (decode)
 import Data.Text (Text)
-import qualified Data.Text as T
 import Network.HTTP.Types.URI (decodePathSegments)
 import qualified Network.WebSockets as WS
 
