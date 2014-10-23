@@ -4,6 +4,7 @@ module Collab.Client
   , getName
   , getRoom
   , getConnection
+  , sameRoom
   ) where
 
 import Data.Text (Text)
@@ -30,3 +31,6 @@ getRoom = client_room
 
 getConnection :: Client -> Connection
 getConnection = client_conn
+
+sameRoom :: Client -> Client -> Bool
+sameRoom a b = (getRoom a) == (getRoom b)

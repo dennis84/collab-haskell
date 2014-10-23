@@ -59,8 +59,8 @@ test-suite tests
       HUnit             >= 1.2
     , base
     , collab
-    , websockets        >= 0.8
-    , transformers      >= 0.4
-    , http-types        >= 0.8
-    , text              >= 1
+    , websockets
+    , transformers
+    , http-types
+    , text
     , aeson

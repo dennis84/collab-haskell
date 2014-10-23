@@ -38,27 +38,27 @@ leave state sender = do
 -- The response does not contain the `sender` field.
 members :: State -> Client -> IO ()
 members state sender =
-    map makeMember   <$>
-    filter roommates <$>
-    Map.elems        <$> readMVar state >>= pongT sender . Members
-  where roommates (Client _ _ room _) = room == getRoom sender
-        makeMember (Client id name _ _) =
+    map makeMember           <$>
+    filter (sameRoom sender) <$>
+    Map.elems                <$> readMVar state >>= pongT sender . Members
+  where makeMember (Client id name _ _) =
           Member id name $ id == getId sender
 
 -- | When a room receives code.
 code :: State -> Client -> Code -> IO ()
 code state sender code =
-    readMVar state >>= broadcastT sender code
+  readMVar state >>= broadcastT sender code
 
 -- | When a room receives a cursor.
 cursor :: State -> Client -> Cursor -> IO ()
 cursor state sender cursor =
-    readMVar state >>= broadcastT sender cursor
+  readMVar state >>= broadcastT sender cursor
 
 -- | Change the nickname in the state and sends the
 -- updated member back to all members of the room.
 changeNick :: State -> Client -> ChangeNick -> IO ()
-changeNick state sender@(Client sId _ _ _) nick@(ChangeNick name _) = do
+changeNick state sender nick@(ChangeNick name _) = do
   liftIO $ State.insert state sender { client_name = name }
-  readMVar state >>= broadcastT sender nick { changeNick_id = Just sId
-                                            }
+  readMVar state >>= broadcastT sender nick
+                       { changeNick_id = Just $ getId sender
+                       }

@@ -45,10 +45,10 @@ pongT (Client id _ _ conn) msg =
 
 -- | Sends a message to all clients of the given room.
 broadcastT :: (Typeable a, ToJSON a) => Client -> a -> Clients -> IO ()
-broadcastT (Client id _ room _) msg clients =
-  forAllIn room clients $ \conn -> do
-    sendTextData conn $ makeMessageT (T.unpack id) msg
+broadcastT client msg = forAll (sameRoom client) $ \conn -> do
+    sendTextData conn $ makeMessageT id msg
+  where id = T.unpack $ getId client
 
-forAllIn :: Text -> Clients -> (Connection -> IO ()) -> IO ()
-forAllIn room cs f = forM_ (Map.elems cs) $ \c -> do
-  when (room == getRoom c) $ f (getConnection c)
+forAll :: (Client -> Bool) -> (Connection -> IO ()) -> Clients -> IO ()
+forAll p f cs = forM_ (Map.elems cs) $ \c -> do
+  when (p c) $ f (getConnection c)
