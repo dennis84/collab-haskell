@@ -33,7 +33,7 @@ app state pending = do
     liftIO $ Api.join state client
     flip finally (Api.leave state client) $ do
       forever $ do
-        (event, message, _) <- parseMessage <$> WS.receiveData conn
+        (event, _, message) <- parseMessage <$> WS.receiveData conn
         liftIO $ hub state client event message
   where
     req = WS.pendingRequest pending

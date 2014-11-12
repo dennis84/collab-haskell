@@ -22,7 +22,7 @@ loopA conn = do
   loopA conn
 
 loopB conn = do
-  (event, message, _) <- parseMessage <$> receiveData conn
+  (event, _, message) <- parseMessage <$> receiveData conn
   let messageBS = textToByteString message
   print $ "Client B: " ++ unpack event
   case event of

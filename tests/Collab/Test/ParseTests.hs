@@ -8,8 +8,11 @@ import Test.HUnit
 import Collab.Parse
 
 tests = TestList
-  [ TestCase $ ("code", "{}", "")           @=? parseMessage "code{}"
-  , TestCase $ ("code", "{\"foo\":{}}", "") @=? parseMessage "code{\"foo\":{}}"
-  , TestCase $ ("members", "[]", "")        @=? parseMessage "members[]"
-  , TestCase $ ("code", "", "")             @=? parseMessage "code"
+  [ TestCase $ ("", "", "")             @=? parseMessage ""
+  , TestCase $ ("foo", "", "")          @=? parseMessage "foo"
+  , TestCase $ ("foo", "bar", "")       @=? parseMessage "foo@bar"
+  , TestCase $ ("foo", "", "[]")        @=? parseMessage "foo[]"
+  , TestCase $ ("foo", "bar", "[]")     @=? parseMessage "foo@bar[]"
+  , TestCase $ ("foo", "bar", "{}")     @=? parseMessage "foo@bar{}"
+  , TestCase $ ("foo", "bar", "{{[]}}") @=? parseMessage "foo@bar{{[]}}"
   ]
