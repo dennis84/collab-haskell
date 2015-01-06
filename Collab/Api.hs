@@ -9,6 +9,7 @@ module Collab.Api
   , changeNick
   ) where
 
+import Prelude hiding (join)
 import Control.Applicative ((<$>))
 import Control.Concurrent (readMVar)
 import Control.Monad.IO.Class (liftIO)
