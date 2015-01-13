@@ -43,6 +43,9 @@ loopB conn = do
     "change-nick" -> do
       let nick = decode messageBS :: Maybe ChangeNick
       "dennis" @=? (changeNick_name $ fromJust nick)
+      sendTextData conn ("message{\"text\":\"hello world\"}" :: Text)
+      loopB conn
+    "message" -> do
       return ()
     _ -> error "Fail"
 

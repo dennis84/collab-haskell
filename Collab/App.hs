@@ -47,6 +47,7 @@ hub state sender event message = case event of
     "cursor"      -> maybeDo Api.cursor (decode m :: Maybe Cursor)
     "change-nick" -> maybeDo Api.changeNick (decode m :: Maybe ChangeNick)
     "members"     -> Api.members state sender
+    "message"     -> maybeDo Api.message (decode m :: Maybe Message)
     _             -> putStrLn $ "Unknown message: " ++ show event
   where maybeDo f = maybe (return ()) (f state sender)
         m = textToByteString message

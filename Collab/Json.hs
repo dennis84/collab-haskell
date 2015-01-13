@@ -9,6 +9,7 @@ module Collab.Json
   , ChangeNick(..)
   , Member(..)
   , Members(..)
+  , Message(..)
   ) where
 
 import Data.Aeson.TH (deriveJSON, defaultOptions)
@@ -55,3 +56,8 @@ $(deriveJSON options ''Member)
 
 data Members = Members [Member] deriving (Show, Typeable)
 $(deriveJSON defaultOptions ''Members)
+
+data Message = Message
+  { message_text :: Text
+  } deriving (Show, Typeable)
+$(deriveJSON options ''Message)

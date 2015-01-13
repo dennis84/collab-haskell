@@ -7,6 +7,7 @@ module Collab.Api
   , code
   , cursor
   , changeNick
+  , message
   ) where
 
 import Prelude hiding (join)
@@ -63,3 +64,7 @@ changeNick state sender nick@(ChangeNick name _) = do
   readMVar state >>= broadcastT sender nick
                        { changeNick_id = Just $ getId sender
                        }
+
+message :: State -> Client -> Message -> IO ()
+message state sender msg =
+  readMVar state >>= broadcastT sender msg
