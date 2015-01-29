@@ -4,6 +4,7 @@ module Collab.Response
   ( makeMessage
   , makeMessageT
   , pongT
+  , broadcast
   , broadcastT
   ) where
 
@@ -42,6 +43,11 @@ makeMessageT id a = makeMessage evt id $ encode a
 pongT :: (Typeable a, ToJSON a) => Client -> a -> IO ()
 pongT (Client id _ _ conn) msg =
   sendTextData conn $ makeMessageT (T.unpack id) msg
+
+broadcast :: Client -> String -> B.ByteString -> Clients -> IO ()
+broadcast client evt msg = forAll (sameRoom client) $ \conn -> do
+    sendTextData conn $ makeMessage evt id msg
+  where id = T.unpack $ getId client
 
 -- | Sends a message to all clients of the given room.
 broadcastT :: (Typeable a, ToJSON a) => Client -> a -> Clients -> IO ()

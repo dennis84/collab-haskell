@@ -4,12 +4,9 @@
 module Collab.Json
   ( Join(..)
   , Leave(..)
-  , Code(..)
-  , Cursor(..)
   , ChangeNick(..)
   , Member(..)
   , Members(..)
-  , Message(..)
   ) where
 
 import Data.Aeson.TH (deriveJSON, defaultOptions)
@@ -27,20 +24,6 @@ data Leave = Leave
   } deriving (Show, Typeable)
 $(deriveJSON options ''Leave)
 
-data Code = Code
-  { code_content :: Text
-  , code_file    :: Text
-  , code_lang    :: Text
-  } deriving (Show, Typeable)
-$(deriveJSON options ''Code)
-
-data Cursor = Cursor
-  { cursor_x    :: Int
-  , cursor_y    :: Int
-  , cursor_file :: Text
-  } deriving (Show, Typeable)
-$(deriveJSON options ''Cursor)
-
 data ChangeNick = ChangeNick
   { changeNick_name :: Text
   , changeNick_id   :: Maybe Text
@@ -56,8 +39,3 @@ $(deriveJSON options ''Member)
 
 data Members = Members [Member] deriving (Show, Typeable)
 $(deriveJSON defaultOptions ''Members)
-
-data Message = Message
-  { message_text :: Text
-  } deriving (Show, Typeable)
-$(deriveJSON options ''Message)

@@ -43,11 +43,11 @@ app state pending = do
 -- corresponding actions.
 hub :: State -> Client -> Text -> Text -> IO ()
 hub state sender event message = case event of
-    "code"        -> maybeDo Api.code (decode m :: Maybe Code)
-    "cursor"      -> maybeDo Api.cursor (decode m :: Maybe Cursor)
+    "code"        -> Api.code state sender m
+    "cursor"      -> Api.cursor state sender m
     "change-nick" -> maybeDo Api.changeNick (decode m :: Maybe ChangeNick)
     "members"     -> Api.members state sender
-    "message"     -> maybeDo Api.message (decode m :: Maybe Message)
+    "message"     -> Api.message state sender m
     _             -> putStrLn $ "Unknown message: " ++ show event
   where maybeDo f = maybe (return ()) (f state sender)
         m = textToByteString message

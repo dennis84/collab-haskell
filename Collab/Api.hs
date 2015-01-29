@@ -15,11 +15,12 @@ import Control.Applicative ((<$>))
 import Control.Concurrent (readMVar)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Map as Map
+import qualified Data.ByteString.Lazy as B
 
 import Collab.Client
 import Collab.Json
 import Collab.State (State)
-import Collab.Response (pongT, broadcastT)
+import Collab.Response (pongT, broadcast, broadcastT)
 import qualified Collab.State as State
 
 -- | When a user enters the room.
@@ -47,14 +48,14 @@ members state sender =
           Member id name $ id == getId sender
 
 -- | When a room receives code.
-code :: State -> Client -> Code -> IO ()
+code :: State -> Client -> B.ByteString -> IO ()
 code state sender code =
-  readMVar state >>= broadcastT sender code
+  readMVar state >>= broadcast sender "code" code
 
 -- | When a room receives a cursor.
-cursor :: State -> Client -> Cursor -> IO ()
+cursor :: State -> Client -> B.ByteString -> IO ()
 cursor state sender cursor =
-  readMVar state >>= broadcastT sender cursor
+  readMVar state >>= broadcast sender "cursor" cursor
 
 -- | Change the nickname in the state and sends the
 -- updated member back to all members of the room.
@@ -65,6 +66,7 @@ changeNick state sender nick@(ChangeNick name _) = do
                        { changeNick_id = Just $ getId sender
                        }
 
-message :: State -> Client -> Message -> IO ()
+-- | Sends a chat message to all room members.
+message :: State -> Client -> B.ByteString -> IO ()
 message state sender msg =
-  readMVar state >>= broadcastT sender msg
+  readMVar state >>= broadcast sender "message" msg
