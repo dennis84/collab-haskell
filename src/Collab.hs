@@ -7,9 +7,8 @@ import qualified Collab.State as State
 conf :: IO (String, Int)
 conf = parse <$> getArgs
   where local = ("127.0.0.1", 9000)
-        parse []            = local
-        parse (host:[])     = local
         parse (host:port:_) = (host, read port)
+        parse _             = local
 
 main :: IO ()
 main = do
