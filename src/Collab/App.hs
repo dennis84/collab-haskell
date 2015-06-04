@@ -25,9 +25,9 @@ import Collab.Util (textToByteString, generateID)
 -- is used as room name.
 app :: State -> WS.ServerApp
 app state pending = do
-    conn <- WS.acceptRequest pending
     when (length pathSegments /= 1) $ error "Connection failed"
     let room = head pathSegments
+    conn <- WS.acceptRequest pending
     id <- generateID
     let client = Client id id room conn
     liftIO $ Api.join state client
